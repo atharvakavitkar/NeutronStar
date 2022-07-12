@@ -33,6 +33,7 @@ def train(config_dir):
     data = Star_Loader(config['data_config'])
 
     model = MultimodalTransformer(**config['model_config'])
+    print(model)
     
     regressor = RegressionTrainer(model=model,
                                   lr = config['train_config']['learning_rate'])
@@ -50,7 +51,7 @@ def train(config_dir):
     print(test_metric,type(test_metric))
 
     predictions = trainer.predict(dataloaders=data.test_dataloader())
-    torch.save(predictions,'predictions.pt')
+    torch.save(predictions,config['result_dir']+'predictions.pt')
     
 if __name__ == "__main__":
     config_dir = 'D:/Masters/NS_EoS/NeutronStar/'
