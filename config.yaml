@@ -1,0 +1,20 @@
+
+data_config:
+  mini_ns: True
+  root_dir: 'D:\Masters\NS_EoS\NeutronStar\'
+  dataset_dir: 'D:\Masters\NS_EoS\dataset\'
+  batch_size: 128
+  num_workers: 0
+  validation_split: 0.1
+  test_split: 0.2
+  seed_value: 5
+  nH_c: "true"
+  logTeff_c: "true"
+  dist_c: "true"
+  add_noise_spectrum: True
+  
+result_dir: 'D:\Masters\NS_EoS\Results\'
+
+train_config:
+  epochs: 100
+  learning_rate: 3.0e-4
