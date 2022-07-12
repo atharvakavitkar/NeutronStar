@@ -5,7 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 from pytorch_lightning import LightningDataModule
 
 #user defined modules
-from add_noise import add_noise_np
+from .add_noise import add_noise_np
 
 class Star_Source(Dataset):
 

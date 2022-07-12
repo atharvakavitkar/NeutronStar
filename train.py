@@ -4,7 +4,7 @@ import torch
 import pytorch_lightning as pl
 
 #user defined modules
-from models.MultimodalTransformer import Transformer
+from models.MultimodalTransformer import MultimodalTransformer
 from data.dataset import Star_Loader
 from trainer.trainer import RegressionTrainer
 from pytorch_lightning.loggers import WandbLogger
@@ -32,7 +32,7 @@ def train(config_dir):
 
     data = Star_Loader(config['data_config'])
 
-    model = Transformer()
+    model = MultimodalTransformer(**config['model_config'])
     
     regressor = RegressionTrainer(model=model,
                                   lr = config['train_config']['learning_rate'])

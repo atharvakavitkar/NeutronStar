@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from FeedForwardNN import FeedForwardNN
+from .FeedForwardNN import FeedForwardNN
 from typing import Union
 
 class MultimodalTransformer(nn.Module):
@@ -13,13 +13,14 @@ class MultimodalTransformer(nn.Module):
                  ) -> None:
         super().__init__()
 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=434, 
+        encoder_layer = nn.TransformerEncoderLayer(d_model=434,
+                                                   dim_feedforward=dim_feedforward,
                                                    nhead=num_heads,
                                                    dropout=dropout)
         
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, 
                                                     num_layers=num_encoder_layers,
-                                                    dim_feedforward=dim_feedforward,)
+                                                    )
         
         self.fc_layers = FeedForwardNN(input_size=437,
                                        output_size=2,
@@ -28,13 +29,23 @@ class MultimodalTransformer(nn.Module):
                                        dropout=dropout)
 
     def forward(self, x):
-        print(x.shape)
+        nps,spectra = torch.split(x,[3,434],dim=1)
+        x = self.transformer_encoder(spectra)
+        x = torch.cat((nps,x),dim=1)
+        x = self.fc_layers(x)
         return x
     
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     sample_in = torch.rand(128,437)
-    model = MultimodalTransformer()
+    model_config = {
+        "num_heads": 7, 
+        "dropout": 0.1, 
+        "dim_feedforward": 1024, 
+        "num_encoder_layers": 5, 
+        "fc_layers": 200
+        }
+    model = MultimodalTransformer(**model_config)
     print(model)
     model.to(device)
     sample_out = model(sample_in.cuda())
