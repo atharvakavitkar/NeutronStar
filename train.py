@@ -10,7 +10,6 @@ from trainer.trainer import RegressionTrainer
 from pytorch_lightning.loggers import WandbLogger
 
 
-
 def get_config(config_dir):
     config_file = os.path.join(config_dir,'config.yaml')
     with open(config_file) as stream:
@@ -54,5 +53,5 @@ def train(config_dir):
     torch.save(predictions,config['result_dir']+'predictions.pt')
     
 if __name__ == "__main__":
-    config_dir = 'D:/Masters/NS_EoS/NeutronStar/'
+    config_dir = ''
     train(config_dir)
