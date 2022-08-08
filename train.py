@@ -40,7 +40,7 @@ def train(config_dir):
     wandb_logger = WandbLogger(save_dir=config['result_dir'])
     wandb_logger.experiment.config.update(config)
     
-    trainer = pl.Trainer(auto_select_gpus=True,
+    trainer = pl.Trainer(gpus=1,
                          max_epochs=config['train_config']['epochs'],
                          logger=wandb_logger)
 

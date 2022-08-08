@@ -1,8 +1,8 @@
 
 data_config:
-  mini_ns: True
+  mini_ns: False
   dataset_dir: '/dataset'
-  batch_size: 128
+  batch_size: 256
   num_workers: 0
   validation_split: 0.1
   test_split: 0.2
@@ -15,7 +15,7 @@ data_config:
 result_dir: '/results/'
 
 train_config:
-  epochs: 10
+  epochs: 1000
   learning_rate: 3.0e-4
 
 model_config:
