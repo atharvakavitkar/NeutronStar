@@ -2,9 +2,12 @@ import os
 import yaml
 import torch
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 #user defined modules
 from models.MultimodalTransformer import MultimodalTransformer
+from models.MultimodalTransformer import FeedForwardNN
 from data.dataset import Star_Loader
 from trainer.trainer import RegressionTrainer
 from pytorch_lightning.loggers import WandbLogger
@@ -31,7 +34,32 @@ def train(config_dir):
 
     data = Star_Loader(config['data_config'])
 
-    model = MultimodalTransformer(**config['model_config'])
+    callbacks = []
+    model_checkpoint = ModelCheckpoint(save_last=True, save_top_k=2,
+                                          monitor='val_loss',
+                                          filename='{epoch}-{val_loss:.4f}')
+
+    callbacks.append(model_checkpoint)
+    
+    if config['train_config']['early_stopping']:
+        early_stopping = EarlyStopping( monitor='val_loss', 
+                                       mode='min', 
+                                       verbose=False,
+                                       patience=config['train_config']['stopping_patience'],
+                                       check_finite=True,)
+        callbacks.append(early_stopping)
+
+    lr_monitor = LearningRateMonitor(logging_interval="epoch")
+    callbacks.append(lr_monitor)
+
+    #model = MultimodalTransformer(**config['model_config'])
+    model = FeedForwardNN(
+                 input_size = 437,
+                 output_size= 2,
+                 hidden_layers = [],
+                 activation=torch.nn.ReLU(),
+                 batch_norm = True,
+                 dropout = 0.2)
     print(model)
     
     regressor = RegressionTrainer(model=model,
@@ -42,15 +70,12 @@ def train(config_dir):
     
     trainer = pl.Trainer(gpus=1,
                          max_epochs=config['train_config']['epochs'],
+                         auto_lr_find=True,
+                         callbacks=callbacks,
                          logger=wandb_logger)
 
     trainer.fit(regressor,datamodule=data)
 
-    test_metric = trainer.test(model = regressor,dataloaders=data.test_dataloader())
-    print(test_metric,type(test_metric))
-
-    predictions = trainer.predict(dataloaders=data.test_dataloader())
-    torch.save(predictions,config['result_dir']+'predictions.pt')
     
 if __name__ == "__main__":
     config_dir = ''

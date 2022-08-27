@@ -16,14 +16,9 @@ class Star_Source(Dataset):
         """
         super(Star_Source, self).__init__()
 
-        if data_config['mini_ns']:
-            self.data_source = os.path.join(data_config['dataset_dir'],'mini_ns.pkl')
-        else:
-            self.data_source = os.path.join(data_config['dataset_dir'],'NS_EoS.pkl')
+        self.data_source = os.path.join(data_config['dataset_dir'],'train.pkl')
         
         self.data = pd.read_pickle(self.data_source)
-        self.data = self.data.sample(frac = 0.01,ignore_index = True)
-
         nH,logTeff,dist = add_noise_np(data_config,self.data['nH'],self.data['logTeff'],self.data['dist'])
         self.data.loc[:,'nH'] = nH
         self.data.loc[:,'logTeff'] = logTeff
@@ -51,30 +46,26 @@ class Star_Loader(LightningDataModule):
         self.batch_size = data_config['batch_size']
         self.num_workers = data_config['num_workers']
         self.val_split = data_config['validation_split']
-        self.test_split = data_config['test_split']
         self.random_state = data_config['seed_value']
         self.val_len = None
         self.train_len = None
-        self.test_len = None
         self.dataset_len = None
 
         self.train_dataset = None
         self.val_dataset = None
-        self.test_dataset = None
 
         dataset = Star_Source(data_config)
         self.dataset_len = len(dataset)
-        self.train_len = int(self.dataset_len * (1 - self.test_split))
-        self.test_len = int(self.dataset_len - self.train_len)
+        self.train_len = int(self.dataset_len * (1 - self.val_split))
         self.val_len = int(self.train_len * self.val_split)
         self.train_len = int(self.train_len * (1 - self.val_split))
         
-        mismatch = self.dataset_len - (self.train_len + self.val_len + self.test_len)
+        mismatch = self.dataset_len - (self.train_len + self.val_len)
         if(mismatch):
             self.train_len+=mismatch
 
-        self.train_dataset, self.val_dataset, self.test_dataset = torch.utils.data.random_split(dataset,
-                                                                    [self.train_len, self.val_len, self.test_len],
+        self.train_dataset, self.val_dataset = torch.utils.data.random_split(dataset,
+                                                                    [self.train_len, self.val_len],
                                                                     generator=torch.Generator().manual_seed(self.random_state))
 
         self.input_size = self.train_dataset[0][0].shape[-1]
@@ -114,14 +105,11 @@ def test_dm(config_file):
     for x, y in dm.val_dataloader():
         break
 
-    for x, y in dm.test_dataloader():
-        break
-
     print(x.shape, y.shape)
     print(x[0],y[0])
     print(dm.input_size,dm.output_size)
 
 
 if __name__ == '__main__':
-    config_dir = 'D:/Masters/NS_EoS/NeutronStar/config.yaml'
+    config_dir = 'config.yaml'
     test_dm(config_dir)
