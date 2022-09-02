@@ -4,13 +4,14 @@ import torch
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from pytorch_lightning.loggers import WandbLogger
 
 #user defined modules
 from models.MultimodalTransformer import MultimodalTransformer
 from models.MultimodalTransformer import FeedForwardNN
 from data.dataset import Star_Loader
 from trainer.trainer import RegressionTrainer
-from pytorch_lightning.loggers import WandbLogger
+from inference import inference
 
 
 def get_config(config_dir):
@@ -52,14 +53,14 @@ def train(config_dir):
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
     callbacks.append(lr_monitor)
 
-    #model = MultimodalTransformer(**config['model_config'])
-    model = FeedForwardNN(
-                 input_size = 437,
-                 output_size= 2,
-                 hidden_layers = [],
-                 activation=torch.nn.ReLU(),
-                 batch_norm = True,
-                 dropout = 0.2)
+    model = MultimodalTransformer(**config['model_config'])
+    # model = FeedForwardNN(
+    #              input_size = 437,
+    #              output_size= 2,
+    #              hidden_layers = [],
+    #              activation=torch.nn.ReLU(),
+    #              batch_norm = True,
+    #              dropout = 0.2)
     print(model)
     
     regressor = RegressionTrainer(model=model,
@@ -68,7 +69,7 @@ def train(config_dir):
     wandb_logger = WandbLogger(save_dir=config['result_dir'])
     wandb_logger.experiment.config.update(config)
     
-    trainer = pl.Trainer(gpus=1,
+    trainer = pl.Trainer(accelerator="gpu", devices=1,
                          max_epochs=config['train_config']['epochs'],
                          auto_lr_find=True,
                          callbacks=callbacks,
@@ -76,6 +77,8 @@ def train(config_dir):
 
     trainer.fit(regressor,datamodule=data)
 
+    config['data_config']['train'] = False
+    inference.evaluate(config=config,model = regressor)
     
 if __name__ == "__main__":
     config_dir = ''
