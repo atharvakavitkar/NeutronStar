@@ -6,15 +6,10 @@ data_config:
   num_workers: 0
   validation_split: 0.1
   seed_value: 5
-  nH_c: "true"
-  logTeff_c: "true"
-  dist_c: "true"
   add_noise_spectrum: True
 
-result_dir: '/results/'
-
 train_config:
-  epochs: 10
+  epochs: 5
   learning_rate: 3.0e-4
   early_stopping: True
   stopping_patience: 20
@@ -25,3 +20,9 @@ model_config:
   dim_feedforward: 868
   dropout: 0.1
   fc_layers: 400
+
+inference_config:
+  result_dir: '/results/'
+  base_ckpt: '/results/NeutronStar/epoch=4-val_loss=0.4491.ckpt'
+  model_ckpt: '/results/NeutronStar/epoch=113-step=52895.ckpt'
+  visualise: True

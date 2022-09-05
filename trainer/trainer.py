@@ -10,9 +10,7 @@ class RegressionTrainer(LightningModule):
         self.save_hyperparameters()
 
     def training_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self.model(x)
-        loss = self.criterion(y_hat, y)
+        loss = self._shared_eval_step(batch, batch_idx)
         self.log('train_loss', loss)
         return loss
 

@@ -14,7 +14,7 @@ class Star_Source(Dataset):
         Args:
             data_config (dict): Data Loading config
         """
-        super(Star_Source, self).__init__()
+        super().__init__()
         self.data_config = data_config
         
         if self.data_config['train'] == True:
@@ -25,13 +25,13 @@ class Star_Source(Dataset):
 
     def train(self):
         
-        data_source = os.path.join(self.data_config['dataset_dir'],'train.pkl')
+        data_source = os.path.join(self.data_config['dataset_dir'],'tiny_ns.pkl')
         self.data = pd.read_pickle(data_source)
         
         
     def test(self):
         
-        data_source = os.path.join(self.data_config['dataset_dir'],'test.pkl')
+        data_source = os.path.join(self.data_config['dataset_dir'],'tiny_ns.pkl')
         self.data = pd.read_pickle(data_source)
         nH,logTeff,dist = add_noise_np(self.data_config,self.data['nH'],self.data['logTeff'],self.data['dist'])
         self.data.loc[:,'nH'] = nH

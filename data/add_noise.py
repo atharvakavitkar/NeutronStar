@@ -45,47 +45,47 @@ def add_noise_np(config,nH=[],logTeff=[],dist=[]):
     # In those cases you would be at the widths of the sampling ranges
 
     # Creating nH
-    if config['nH_c'] == "tight":
+    if config['nH'] == "tight":
         uncertainty = np.array([NH_TIGHT]) * random_sample[0]
         uncertainty += np.ones_like(uncertainty)
         nH = np.clip(nH * uncertainty,nH_min,nH_max)
     
-    elif config['nH_c'] == "loose": 
+    elif config['nH'] == "loose": 
         uncertainty = np.array([NH_LOOSE]) * random_sample[0]
         uncertainty += np.ones_like(uncertainty)
         nH = np.clip(nH * uncertainty,nH_min,nH_max)
 
-    elif config['nH_c'] != "true":
+    elif config['nH'] != "true":
         print("Invalid coefficent type for nH.")
         return
 
     # Creating logTeff
-    if config['logTeff_c'] == "tight":
+    if config['logTeff'] == "tight":
         uncertainty = np.array([LOGTEFF_TIGHT]) * random_sample[1]
         uncertainty += np.ones_like(uncertainty)
         logTeff = np.clip(logTeff * uncertainty,logTeff_min,logTeff_max)
     
-    elif config['logTeff_c'] == "loose": 
+    elif config['logTeff'] == "loose": 
         uncertainty = np.array([LOGTEFF_LOOSE]) * random_sample[1]
         uncertainty += np.ones_like(uncertainty)
         logTeff = np.clip(logTeff * uncertainty,logTeff_min,logTeff_max)
 
-    elif config['logTeff_c'] != "true":
+    elif config['logTeff'] != "true":
         print("Invalid coefficent type for logTeff.")
         return
 
     # Creating dist
-    if config['dist_c'] == "tight":
+    if config['dist'] == "tight":
         uncertainty = np.array([DIST_TIGHT]) * random_sample[2]
         uncertainty += np.ones_like(uncertainty)
         dist = np.clip(dist * uncertainty,dist_min,dist_max)
     
-    elif config['dist_c'] == "loose": 
+    elif config['dist'] == "loose": 
         uncertainty = np.array([DIST_LOOSE]) * random_sample[2]
         uncertainty += np.ones_like(uncertainty)
         dist = np.clip(nH * uncertainty,dist_min,dist_max)
 
-    elif config['dist_c'] != "true":
+    elif config['dist'] != "true":
         print("Invalid coefficent type for dist.")
         return
 
